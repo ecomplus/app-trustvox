@@ -1,34 +1,19 @@
 {
-  "name": "@ecomplus/express-app-boilerplate",
+  "name": "app-trustvox",
   "private": true,
-  "version": "0.1.1",
-  "description": "Boilerplate for E-Com Plus apps with Express",
-  "main": "app/main.js",
+  "version": "0.0.1",
+  "description": "trustvox for e-com.plus",
+  "main": "main.js",
   "scripts": {
-    "release": "standard-version"
+    "start": "ECOM_AUTH_DB=/var/dbs/trustvox.sqlite LOGGER_OUTPUT=/var/log/nodejs/trustvox.out LOGGER_ERRORS=/var/log/nodejs/trustvox.error nodemon main.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ecomclub/express-app-boilerplate.git"
+  "dependencies": {
+    "axios": "^0.19.0",
+    "console-files": "2.x",
+    "ecomplus-app-sdk": "1.x",
+    "express": "4.x"
   },
-  "keywords": [
-    "ecomplus",
-    "ecomplus-app",
-    "boilerplate",
-    "express-app",
-    "app-boilerplate"
-  ],
-  "author": "E-Com Club <ti@e-com.club>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ecomclub/express-app-boilerplate/issues"
-  },
-  "homepage": "https://github.com/ecomclub/express-app-boilerplate#readme",
   "devDependencies": {
-    "@commitlint/cli": "^8.0.0",
-    "@commitlint/config-conventional": "^8.0.0",
-    "husky": "^2.4.1",
-    "standard": "^12.0.1",
-    "standard-version": "^7.0.0"
+    "standard": "*"
   }
 }
