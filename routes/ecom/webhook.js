@@ -2,8 +2,6 @@
 const trustvox = require('./../../lib/trustvox/client')
 const { getStore } = require('./../../lib/database')
 const logger = require('console-files')
-// read configured E-Com Plus app data
-const getConfig = require(process.cwd() + '/lib/store-api/get-config')
 
 const ECHO_SUCCESS = 'SUCCESS'
 const ECHO_SKIP = 'SKIP'
