@@ -1,0 +1,31 @@
+{
+  "app_id": 1300,
+  "state": "active",
+  "title": "Trustvox",
+  "slug": "trustvox",
+  "version": "0.0.1",
+  "type": "external",
+  "authentication": true,
+  "auth_callback_uri": "https://trustvox.ecomplus.biz/ecom/auth-callback",
+  "auth_scope": {
+    "stores": [
+      "GET"
+    ],
+    "stores/me": [
+      "GET"
+    ],
+    "orders": [
+      "GET"
+    ],
+    "products": [
+      "GET"
+    ],
+    "procedures": [
+      "POST",
+      "GET",
+      "PATCH",
+      "DELETE"
+    ]
+  },
+  "admin_settings": {}
+}
