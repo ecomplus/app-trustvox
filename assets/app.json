@@ -21,11 +21,29 @@
       "GET"
     ],
     "procedures": [
-      "POST",
-      "GET",
-      "PATCH",
-      "DELETE"
+      "POST"
     ]
   },
-  "admin_settings": {}
+  "admin_settings": {
+    "store_token": {
+      "schema": {
+        "type": "string",
+        "maxLength": 255,
+        "title": "Trustvox ApiKey",
+        "description": "Chave de acesso para recursos da API"
+      },
+      "hide": true
+    },
+    "trustvox_store_id": {
+      "schema": {
+        "type": "number",
+        "multipleOf": 0.0001,
+        "minimum": -99999999,
+        "maximum": 99999999,
+        "title": "Trustvox Store Id",
+        "description": "Id da loja no trustvox"
+      },
+      "hide": true
+    }
+  }
 }
