@@ -2,18 +2,30 @@
   "name": "app-trustvox",
   "private": true,
   "version": "0.0.1",
-  "description": "trustvox for e-com.plus",
+  "license": "MIT",
+  "description": "E-Com Plus app to integrate Trustvox",
   "main": "main.js",
   "scripts": {
-    "start": "ECOM_AUTH_DB=/var/dbs/trustvox.sqlite LOGGER_OUTPUT=/var/log/nodejs/trustvox.out LOGGER_ERRORS=/var/log/nodejs/trustvox.error nodemon main.js"
+    "test": "node ./main.js",
+    "start": "ECOM_AUTH_DB=/var/dbs/trustvox.sqlite LOGGER_OUTPUT=/var/log/nodejs/trustvox.out LOGGER_ERRORS=/var/log/nodejs/trustvox.error nodemon main.js",
+    "release": "standard-version"
   },
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "0.x",
     "console-files": "2.x",
     "ecomplus-app-sdk": "1.x",
     "express": "4.x"
   },
   "devDependencies": {
-    "standard": "*"
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
+    "husky": "^3.1.0",
+    "standard": "^14.3.1",
+    "standard-version": "^7.0.1"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   }
 }
