@@ -3,63 +3,62 @@ const { getStore, addStore } = require('./../../lib/database')
 const trustvox = require('./../../lib/trustvox/client')
 module.exports = appSdk => {
   return async (req, res) => {
-    let storeId = req.query.storeId || req.query.x_store_id || parseInt(req.get('x-store-id'), 10)
+    const storeId = req.query.storeId || req.query.x_store_id || parseInt(req.get('x-store-id'), 10)
+    
     if (!storeId || isNaN(storeId)) {
       res.status(400)
       res.set('Content-Type', 'text/html')
-      res.send(Buffer.from('<p>Store Id not found</p>'))
+      return res.send(Buffer.from('<p>Store Id not found</p>'))
     }
 
-    let store = await getStore(storeId).catch(() => console.log('Store not found'))
-    if (!store) {
-      appSdk.apiRequest(storeId, '/stores/me.json', 'GET')
+    const store = await getStore(storeId).catch(() => console.log('Store not found'))
 
-        .then(resp => {
-          let me = resp.response.data
-          let domain = me.homepage
-          return trustvox.store.find(domain)
+    if (store) {
+      return res.redirect(301, store.link)
+    }
 
-            .then(result => {
-              // not found
-              if (result.errors) {
-                // create new store
-                let payload = {}
-                payload.name = me.name
-                payload.email = me.contact_email
-                payload.url = me.homepage
-                payload.platform_name = 'Outra plataforma'
+    appSdk
+      .apiRequest(storeId, '/stores/me.json', 'GET')
+      .then(resp => resp.response.data)
+      .then(async data => {
+        const trustvoxAccount = await trustvox.store.find(data.homepage)
 
-                switch (me.doc_type) {
-                  case 'cnpj':
-                    payload.cnpj = payload.doc_type
-                    break
-                  default:
-                    payload.cpf = payload.doc_type
-                    break
-                }
-                trustvox.store.create(payload)
+        if (!trustvoxAccount.errors) {
+          // exist
+          return addStore(trustvoxAccount.id, trustvoxAccount.store_token, storeId, trustvoxAccount.links[0].href)
+            .then(() => res.redirect(301, trustvoxAccount.links[0].href)).catch(e => console.log(e))
 
-                  .then(store => {
-                    addStore(store.id, store.store_token, storeId, store.links[3].href)
-                    res.redirect(301, store.links[3].href)
-                  })
-              } else {
-                addStore(result.id, result.store_token, storeId, result.links[0].href)
-                res.redirect(301, store.links[0].href)
-              }
+        } else {
+          const newAccount = {
+            name: data.name,
+            email: data.contact_email,
+            url: data.homepage,
+            platform_name: 'Outra plataforma'
+          }
+
+          switch (data.doc_type) {
+            case 'cnpj':
+              newAccount.cnpj = newAccount.doc_number
+              break
+            default:
+              newAccount.cpf = newAccount.doc_number
+              break
+          }
+
+          return trustvox.store.create(newAccount)
+            .then(store => {
+              return addStore(store.id, store.store_token, storeId, store.links[3].href)
+                .then(() => res.redirect(301, store.links[3].href))
             })
-        })
+        }
+      })
 
-        .catch(error => {
-          let msg = 'TrustVox Auth Callback Error'
-          logger.error(msg, error)
-          res.status(400)
-          res.set('Content-Type', 'text/html')
-          res.send(msg)
-        })
-    } else {
-      // if installed, redirect to trustvox account
-      res.redirect(301, store.link)
-    }
+      .catch(error => {
+        let msg = 'TrustVox Auth Callback Error'
+        logger.error(msg, error)
+        res.status(400)
+        res.set('Content-Type', 'text/html')
+        res.send(msg)
+      })
   }
 }
