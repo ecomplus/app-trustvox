@@ -103,7 +103,7 @@ module.exports = appSdk => {
 
       .catch(err => {
         logger.error(err)
-        if (err.name === SKIP_TRIGGER_NAME) {
+        if (err.name === ECHO_SKIP) {
           // trigger ignored by app configuration
           res.send(ECHO_SKIP)
         } else {
