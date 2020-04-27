@@ -8,7 +8,8 @@
   "scripts": {
     "test": "node ./main.js",
     "start": "ECOM_AUTH_DB=/var/dbs/trustvox.sqlite LOGGER_OUTPUT=/var/log/nodejs/trustvox.out LOGGER_ERRORS=/var/log/nodejs/trustvox.error nodemon main.js",
-    "release": "standard-version"
+    "release": "standard-version",
+    "publish:market": "node ./scripts/market-publication.js"
   },
   "dependencies": {
     "axios": "0.x",
