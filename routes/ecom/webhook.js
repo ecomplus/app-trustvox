@@ -15,86 +15,108 @@ module.exports = appSdk => {
     */
     const trigger = req.body
 
-    if (trigger.subresource === 'fulfillments') {
-      getConfig({ appSdk, storeId }, true)
+    if (trigger.subresource !== 'fulfillments') {
+      return res.send(ECHO_SKIP)
+    }
 
-        .then(configObj => {
-          appSdk.apiRequest(storeId, `orders/${trigger.resource_id}.json`, 'GET')
+    getConfig({ appSdk, storeId }, true)
 
-            .then(async result => {
-              let order = result.response.data
-              const lastfulfillmentsStatus = order.fulfillments.sort((a, b) => a.date_time > b.date_time ? -1 : 1)[0].status
+      .then(configObj => {
+        return appSdk
+          .apiRequest(storeId, `orders/${trigger.resource_id}.json`)
+          .then(resp => ({ order: resp.response.data, configObj }))
+      })
 
-              if (lastfulfillmentsStatus === 'delivered') {
-                let promises = []
-                let items = []
-                let store = await appSdk.apiRequest(storeId, '/stores/me.json', 'GET')
-                store = store.response.data
+      .then(async ({ order, configObj }) => {
+        const { fulfillments } = order
+        if (fulfillments &&
+          fulfillments.find(fulfillment => fulfillment.status === 'delivered') &&
+          configObj.trustvox_store_id &&
+          configObj.store_token) {
+          const store = await appSdk
+            .apiRequest(storeId, '/stores/me.json', 'GET')
+            .then(store => store.response.data)
 
-                for (let i = 0; i < order.items.length; i++) {
-                  let requests = appSdk.apiRequest(storeId, `products/${order.items[i].product_id}.json`, 'GET')
-                    .then(resp => {
-                      let product = resp.response.data
-                      let image = product.pictures.map(image => image.normal.url)
-                      let productId = null
-                      if (product.hasOwnProperty('hidden_metafields')) {
-                        let meta = product.hidden_metafields.find(meta => meta.field === 'trustvox_id')
-                        productId = meta.value || product.sku
-                      } else {
-                        productId = product.sku
-                      }
-                      items.push({
-                        'name': product.name,
-                        'id': productId,
-                        'url': product.permalink || `${store.homepage}/${product.slug}`,
-                        'price': product.price,
-                        'photos_urls': image,
-                        'tags': [productId],
-                        'extra': {
-                          'sku': product.sku
-                        }
-                      })
-                    })
-                  promises.push(requests)
+          const { items } = order
+          const promises = []
+          const trustVoxItens = []
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i]
+            const promise = appSdk
+              .apiRequest(storeId, `products/${item.product_id}.json`, 'GET')
+              .then(resp => resp.response.data)
+              .then(product => {
+                const { pictures } = product
+                const image = pictures.map(picture => picture.normal && picture.normal.url)
+                let productId = product.sku
+
+                if (product.hidden_metafields) {
+                  let meta = product.hidden_metafields.find(metafield => metafield.field === 'trustvox_id')
+                  productId = meta.value || productId
                 }
 
-                Promise.all(promises)
-                  .then(async () => {
-                    let auth = null
-                    if (configObj && configObj.trustvox_store_id && configObj.store_token) {
-                      auth = Object.assign({}, configObj)
-                    } else {
-                      auth = await getStore(storeId)
-                    }
+                trustVoxItens.push({
+                  'name': product.name,
+                  'id': productId,
+                  'url': product.permalink || `${store.homepage}/${product.slug}`,
+                  'price': product.price,
+                  'photos_urls': image,
+                  'tags': [productId],
+                  'extra': {
+                    'sku': product.sku
+                  }
+                })
+              })
+            promises.push(promise)
+          }
 
-                    if (auth) {
-                      let payload = {
-                        'order_id': order._id,
-                        'delivery_date': order.fulfillment_status.updated_at || order.updated_at,
-                        'client': {
-                          'first_name': order.buyers[0].name.given_name,
-                          'last_name': order.buyers[0].name.family_name,
-                          'email': order.buyers[0].main_email,
-                          'phone_number': order.buyers[0].phones[0].number
-                        },
-                        'items': items
-                      }
-
-                      return trustvox.sales.new(auth.trustvox_store_id, auth.store_token, payload).then(() => res.send(ECHO_SUCCESS))
-                    } else {
-                      logger.log(`Trustvox Api Key or Trustvox Store Id unset in application settings | Store # ${storeId}`)
-                    }
-                  })
-                  .catch(err => {
-                    logger.error('TRUSTVOX_ERR', err)
-                    res.send(ECHO_SKIP)
-                  })
-              }
+          Promise
+            .all(promises)
+            .then(() => {
+              return getStore(storeId)
             })
-        })
-    } else {
-      // all done
-      res.send(ECHO_SKIP)
-    }
+            .then(trustAuth => {
+              const buyers = order.buyers[0] || {}
+              let data = {
+                'order_id': order._id,
+                'delivery_date': order.fulfillment_status.updated_at || order.updated_at,
+                'client': {
+                  'first_name': buyers.name.given_name,
+                  'last_name': buyers.name.family_name,
+                  'email': buyers.main_email,
+                  'phone_number': buyers.phones[0].number
+                },
+                'items': trustVoxItens
+              }
+              return trustvox.sales.new(trustAuth.trustvox_store_id, trustAuth.store_token, data)
+            })
+            .then(resp => {
+              logger.log(`--> New order #${order.number} / #${storeId}`)
+            })
+            .catch(err => {
+              logger.error(`--> Trustvox Err for order #${order.number} / #${storeId}`, err.response.data)
+            })
+        }
+      })
+
+      .then(() => res.send(ECHO_SUCCESS))
+
+      .catch(err => {
+        logger.error(err)
+        if (err.name === SKIP_TRIGGER_NAME) {
+          // trigger ignored by app configuration
+          res.send(ECHO_SKIP)
+        } else {
+          // logger.error(err)
+          // request to Store API with error response
+          // return error status code
+          res.status(500)
+          let { message } = err
+          res.send({
+            error: ECHO_API_ERROR,
+            message
+          })
+        }
+      })
   }
 }
