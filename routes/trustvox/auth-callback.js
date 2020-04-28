@@ -1,10 +1,12 @@
 const logger = require('console-files')
 const { getStore, addStore } = require('./../../lib/database')
 const trustvox = require('./../../lib/trustvox/client')
+const getConfig = require('./../../lib/store-api/get-config')
+
 module.exports = appSdk => {
   return async (req, res) => {
     const storeId = req.query.storeId || req.query.x_store_id || parseInt(req.get('x-store-id'), 10)
-    
+
     if (!storeId || isNaN(storeId)) {
       res.status(400)
       res.set('Content-Type', 'text/html')
@@ -17,11 +19,17 @@ module.exports = appSdk => {
       return res.redirect(301, store.link)
     }
 
-    appSdk
-      .apiRequest(storeId, '/stores/me.json', 'GET')
-      .then(resp => resp.response.data)
-      .then(async data => {
-        const trustvoxAccount = await trustvox.store.find(data.homepage)
+    getConfig({ appSdk, storeId }, true)
+
+      .then(configObj => {
+        return appSdk
+          .apiRequest(storeId, '/stores/me.json', 'GET')
+          .then(resp => ({ data: resp.response.data, configObj }))
+      })
+
+      .then(async ({ data, configObj }) => {
+        const storeUrl = configObj.store_url || data.homepage
+        const trustvoxAccount = await trustvox.store.find(storeUrl)
 
         if (!trustvoxAccount.errors) {
           // exist
@@ -54,11 +62,11 @@ module.exports = appSdk => {
       })
 
       .catch(error => {
-        let msg = 'TrustVox Auth Callback Error'
+        const msg = 'Callback error'
         logger.error(msg, error)
-        res.status(400)
+        res.status(500)
         res.set('Content-Type', 'text/html')
-        res.send(msg)
+        return res.send(msg)
       })
   }
 }
