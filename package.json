@@ -1,7 +1,7 @@
 {
   "name": "app-trustvox",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
   "description": "E-Com Plus app to integrate Trustvox",
   "main": "main.js",
