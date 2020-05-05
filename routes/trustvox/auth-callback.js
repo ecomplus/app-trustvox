@@ -62,7 +62,22 @@ module.exports = appSdk => {
       })
 
       .catch(error => {
-        const msg = 'Callback error'
+        const msg = `
+          <style> 
+            .error {
+                display: flex;
+                width: 100%;
+                height: 100vh;
+                justify-content: center;
+                align-items: center;
+                font-size: 1.5rem;
+                opacity: .8;
+            }
+          </style>
+          <div class="error"> 
+            <h6>Não foi possível completar a configuração do aplicativo utizando a url configurada no app. <br> Verique a url configurada no aplicativo e tente realizar a authenticação novamente <br> ou informe o erro na <a href="https://community.e-com.plus/">comunidade</a>.</h6>
+          </div>
+        `
         logger.error(msg, error)
         res.status(500)
         res.set('Content-Type', 'text/html')
