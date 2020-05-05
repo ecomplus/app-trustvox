@@ -41,7 +41,7 @@
         "minimum": -99999999,
         "maximum": 99999999,
         "title": "Trustvox Store Id",
-        "description": "Id da loja no trustvox"
+        "description": "ID da loja no Trustvox"
       },
       "hide": true
     },
@@ -49,8 +49,8 @@
       "schema": {
         "type": "string",
         "maxLength": 255,
-        "title": "Url da Loja",
-        "description": "Url da loja como está no trustvox"
+        "title": "URL da Loja",
+        "description": "URL da loja como está no Trustvox"
       },
       "hide": true
     }
