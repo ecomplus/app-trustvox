@@ -14,8 +14,9 @@ module.exports = appSdk => {
     // https://developers.e-com.plus/docs/api/#/store/triggers/
     */
     const trigger = req.body
+    //logger.log(JSON.stringify(trigger))
 
-    if (trigger.subresource !== 'fulfillments') {
+    if (!trigger.resource_id) {
       return res.send(ECHO_SKIP)
     }
 
@@ -28,11 +29,9 @@ module.exports = appSdk => {
       })
 
       .then(async ({ order, configObj }) => {
-        const { fulfillments } = order
-        if (fulfillments &&
-          fulfillments.find(fulfillment => fulfillment.status === 'delivered') &&
-          configObj.trustvox_store_id &&
-          configObj.store_token) {
+        if (order.fulfillment_status &&
+          order.fulfillment_status.current &&
+          order.fulfillment_status.current === 'delivered') {
           const store = await appSdk
             .apiRequest(storeId, '/stores/me.json', 'GET')
             .then(store => store.response.data)
@@ -94,7 +93,12 @@ module.exports = appSdk => {
               logger.log(`--> New order #${order.number} / #${storeId}`)
             })
             .catch(err => {
-              logger.error(`--> Trustvox Err for order #${order.number} / #${storeId}`, err.response.data)
+              const { response } = err
+              let message = err.message
+              if (response && response.data) {
+                message = JSON.stringify(response.data)
+              }
+              logger.error(`--> Trustvox Err for order #${order.number} / #${storeId}`, message)
             })
         }
       })
