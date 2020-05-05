@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.4](https://github.com/ecomclub/app-trustvox/compare/v0.1.3...v0.1.4) (2020-05-05)
+
+
+### Bug Fixes
+
+* preventing errors with orders without fullfilments ([48fbb32](https://github.com/ecomclub/app-trustvox/commit/48fbb32ee39d4483cc3acd9579af62e1c8046a91))
+
 ### [0.1.3](https://github.com/ecomclub/app-trustvox/compare/v0.1.2...v0.1.3) (2020-04-28)
 
 ### [0.1.2](https://github.com/ecomclub/app-trustvox/compare/v0.1.1...v0.1.2) (2020-04-27)
