@@ -17,6 +17,7 @@ const port = process.env.PORT || 5000
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+app.use(express.static('assets'))
 
 app.use((req, res, next) => {
   if (req.url.startsWith('/ecom/')) {
@@ -54,7 +55,7 @@ ecomAuth.then(appSdk => {
   })
 
   /* Add custom app routes here */
-  router.get(`/trustvox/auth-callback`, require(`${routes}/trustvox/auth-callback`)(appSdk))
+  router.get(`/trustvox/auth-callback`, require(`${routes}/trustvox/auth-callback`)(appSdk, app))
 
   // add router and start web server
   app.use(router)

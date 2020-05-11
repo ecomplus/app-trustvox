@@ -2,8 +2,9 @@ const logger = require('console-files')
 const { getStore, addStore } = require('./../../lib/database')
 const trustvox = require('./../../lib/trustvox/client')
 const getConfig = require('./../../lib/store-api/get-config')
+const path = require('path')
 
-module.exports = appSdk => {
+module.exports = (appSdk, app) => {
   return async (req, res) => {
     const storeId = req.query.storeId || req.query.x_store_id || parseInt(req.get('x-store-id'), 10)
 
@@ -62,26 +63,9 @@ module.exports = appSdk => {
       })
 
       .catch(error => {
-        const msg = `
-          <style> 
-            .error {
-                display: flex;
-                width: 100%;
-                height: 100vh;
-                justify-content: center;
-                align-items: center;
-                font-size: 1.5rem;
-                opacity: .8;
-            }
-          </style>
-          <div class="error"> 
-            <h6>Não foi possível completar a configuração do aplicativo utizando a url configurada no app. <br> Verique a url configurada no aplicativo e tente realizar a authenticação novamente <br> ou informe o erro na <a href="https://community.e-com.plus/">comunidade</a>.</h6>
-          </div>
-        `
-        logger.error(msg, error)
+        logger.error(error)
         res.status(500)
-        res.set('Content-Type', 'text/html')
-        return res.send(msg)
+        return res.sendFile(path.join(__dirname, '../../assets', 'callback-error.html'))
       })
   }
 }
