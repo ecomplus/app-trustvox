@@ -80,10 +80,10 @@ module.exports = appSdk => {
                 'order_id': order._id,
                 'delivery_date': order.fulfillment_status.updated_at || order.updated_at,
                 'client': {
-                  'first_name': buyers.name.given_name,
-                  'last_name': buyers.name.family_name,
+                  'first_name': buyers.name ? buyers.name.given_name : buyers.display_name,
+                  'last_name': buyers.name ? buyers.name.given_name : undefined,
                   'email': buyers.main_email,
-                  'phone_number': buyers.phones[0].number
+                  'phone_number': buyers.phones ? buyers.phones[0].number : undefined
                 },
                 'items': trustVoxItens
               }
