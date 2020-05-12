@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.7](https://github.com/ecomclub/app-trustvox/compare/v0.1.6...v0.1.7) (2020-05-12)
+
+
+### Bug Fixes
+
+* **webhook:** preventing erros with buyer.name and buyer.phone ([c98be5e](https://github.com/ecomclub/app-trustvox/commit/c98be5e2f9e709976653c7d7a8332f3bf704198f))
+
 ### [0.1.6](https://github.com/ecomclub/app-trustvox/compare/v0.1.5...v0.1.6) (2020-05-11)
 
 ### [0.1.5](https://github.com/ecomclub/app-trustvox/compare/v0.1.4...v0.1.5) (2020-05-05)
