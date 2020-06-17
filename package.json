@@ -12,9 +12,9 @@
     "publish:market": "node ./scripts/market-publication.js"
   },
   "dependencies": {
+    "@ecomplus/application-sdk": "^1.13.0",
     "axios": "0.x",
     "console-files": "2.x",
-    "ecomplus-app-sdk": "1.x",
     "express": "4.x"
   },
   "devDependencies": {
