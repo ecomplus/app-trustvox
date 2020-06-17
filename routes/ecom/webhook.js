@@ -25,7 +25,7 @@ module.exports = appSdk => {
       .then(configObj => {
         return appSdk
           .apiRequest(storeId, `orders/${trigger.resource_id}.json`)
-          .then(resp => ({ order: resp.response.data, configObj }))
+          .then(({ response }) => ({ order: response.data, configObj }))
       })
 
       .then(async ({ order, configObj }) => {
@@ -69,16 +69,18 @@ module.exports = appSdk => {
             promises.push(promise)
           }
 
+          const trustAuth = await getStore(storeId).catch(err => console.error(err))
+
+          const tvStoreId = configObj.trustvox_store_id || trustAuth.trustvox_store_id
+          const tvStoreToken = configObj.store_token || trustAuth.store_token
+
           Promise
             .all(promises)
             .then(() => {
-              return getStore(storeId)
-            })
-            .then(trustAuth => {
-              const buyers = order.buyers[0] || {}
+              const buyers = (order.buyers && order.buyers[0]) || {}
               let data = {
                 'order_id': order._id,
-                'delivery_date': order.fulfillment_status.updated_at || order.updated_at,
+                'delivery_date': (order.fulfillment_status && order.fulfillment_status.updated_at) || order.updated_at,
                 'client': {
                   'first_name': buyers.name ? buyers.name.given_name : buyers.display_name,
                   'last_name': buyers.name ? buyers.name.given_name : undefined,
@@ -87,7 +89,7 @@ module.exports = appSdk => {
                 },
                 'items': trustVoxItens
               }
-              return trustvox.sales.new(trustAuth.trustvox_store_id, trustAuth.store_token, data)
+              return trustvox.sales.new(tvStoreId, tvStoreToken, data)
             })
             .then(resp => {
               logger.log(`--> New order #${order.number} / #${storeId}`)

@@ -4,20 +4,19 @@ const trustvox = require('./../../lib/trustvox/client')
 const getConfig = require('./../../lib/store-api/get-config')
 const path = require('path')
 
-module.exports = (appSdk, app) => {
+module.exports = (appSdk) => {
   return async (req, res) => {
-    const storeId = req.query.storeId || req.query.x_store_id || parseInt(req.get('x-store-id'), 10)
+    const storeId = parseInt(req.query.storeId || req.query.x_store_id || req.get('x-store-id'), 10)
 
-    if (!storeId || isNaN(storeId)) {
-      res.status(400)
-      res.set('Content-Type', 'text/html')
-      return res.send(Buffer.from('<p>Store Id not found</p>'))
+    if (!storeId) {
+      return res.status(409).send('missing store_id')
     }
 
-    const store = await getStore(storeId).catch(() => console.log('Store not found'))
+    const localStore = await getStore(storeId)
 
-    if (store) {
-      return res.redirect(301, store.link)
+    // saved in db
+    if (localStore) {
+      return res.redirect(301, localStore.link)
     }
 
     getConfig({ appSdk, storeId }, true)
@@ -25,7 +24,7 @@ module.exports = (appSdk, app) => {
       .then(configObj => {
         return appSdk
           .apiRequest(storeId, '/stores/me.json', 'GET')
-          .then(resp => ({ data: resp.response.data, configObj }))
+          .then(({ response }) => ({ data: response.data, configObj }))
       })
 
       .then(async ({ data, configObj }) => {
