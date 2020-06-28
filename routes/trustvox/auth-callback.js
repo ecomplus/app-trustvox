@@ -12,7 +12,7 @@ module.exports = (appSdk) => {
       return res.status(409).send('missing store_id')
     }
 
-    const localStore = await getStore(storeId)
+    const localStore = await getStore(storeId).catch(() => console.log('Not auth'))
 
     // saved in db
     if (localStore) {
