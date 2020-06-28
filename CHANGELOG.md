@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.10](https://github.com/ecomclub/app-trustvox/compare/v0.1.9...v0.1.10) (2020-06-28)
+
+
+### Bug Fixes
+
+* preventing errors with content security policy ([c7fa173](https://github.com/ecomclub/app-trustvox/commit/c7fa173c57d93b94baa06f2e63f0ca5bdbfd9b03))
+
 ### [0.1.9](https://github.com/ecomclub/app-trustvox/compare/v0.1.8...v0.1.9) (2020-06-28)
 
 
