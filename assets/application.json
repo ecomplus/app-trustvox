@@ -44,15 +44,6 @@
         "description": "ID da loja no Trustvox"
       },
       "hide": true
-    },
-    "store_url": {
-      "schema": {
-        "type": "string",
-        "maxLength": 255,
-        "title": "URL da Loja",
-        "description": "URL da loja como está no Trustvox"
-      },
-      "hide": true
     }
   }
 }
