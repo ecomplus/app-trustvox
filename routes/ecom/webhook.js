@@ -92,7 +92,7 @@ module.exports = appSdk => {
               return trustvox.sales.new(tvStoreId, tvStoreToken, data)
             })
             .then(resp => {
-              logger.log(`--> New order #${order.number} / #${storeId}`)
+              logger.log(`--> New order #${order.number} / #${storeId} / ${resp.data && resp.data.order_id}`)
             })
             .catch(err => {
               const { response } = err
