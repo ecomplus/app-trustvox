@@ -3,7 +3,7 @@
   "state": "active",
   "title": "Trustvox",
   "slug": "trustvox",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "type": "external",
   "authentication": true,
   "auth_callback_uri": "https://trustvox.ecomplus.biz/ecom/auth-callback",
