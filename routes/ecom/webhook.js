@@ -14,7 +14,7 @@ module.exports = appSdk => {
     // https://developers.e-com.plus/docs/api/#/store/triggers/
     */
     const trigger = req.body
-    //logger.log(JSON.stringify(trigger))
+    // logger.log(JSON.stringify(trigger))
 
     if (!trigger.resource_id) {
       return res.send(ECHO_SKIP)
@@ -87,16 +87,16 @@ module.exports = appSdk => {
             .all(promises)
             .then(() => {
               const buyers = (order.buyers && order.buyers[0]) || {}
-              let data = {
-                'order_id': order._id,
-                'delivery_date': (order.fulfillment_status && order.fulfillment_status.updated_at) || order.updated_at,
-                'client': {
-                  'first_name': buyers.name ? buyers.name.given_name : buyers.display_name,
-                  'last_name': buyers.name ? buyers.name.given_name : undefined,
-                  'email': buyers.main_email,
-                  'phone_number': buyers.phones ? buyers.phones[0].number : undefined
+              const data = {
+                order_id: order._id,
+                delivery_date: (order.fulfillment_status && order.fulfillment_status.updated_at) || order.updated_at,
+                client: {
+                  first_name: buyers.name ? buyers.name.given_name : buyers.display_name,
+                  last_name: buyers.name ? buyers.name.given_name : undefined,
+                  email: buyers.main_email,
+                  phone_number: buyers.phones ? buyers.phones[0].number : undefined
                 },
-                'items': trustVoxItens
+                items: trustVoxItens
               }
               return trustvox.sales.new(tvStoreId, tvStoreToken, data)
             })
@@ -126,11 +126,8 @@ module.exports = appSdk => {
           // request to Store API with error response
           // return error status code
           res.status(500)
-          let { message } = err
-          res.send({
-            error: ECHO_API_ERROR,
-            message
-          })
+          const { message } = err
+          res.send({ message })
         }
       })
   }
