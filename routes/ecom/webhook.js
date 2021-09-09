@@ -45,24 +45,33 @@ module.exports = appSdk => {
               .apiRequest(storeId, `products/${item.product_id}.json`, 'GET')
               .then(resp => resp.response.data)
               .then(product => {
-                const { pictures } = product
-                const image = pictures.map(picture => picture.normal && picture.normal.url)
+                const photosUrls = []
+                product.pictures.forEach(picture => {
+                  if (picture.zoom) {
+                    const { url } = picture.zoom
+                    if (!url.endsWith('.webp')) {
+                      photosUrls.push(url)
+                    }
+                  }
+                })
                 let productId = product.sku
 
                 if (product.hidden_metafields) {
-                  let meta = product.hidden_metafields.find(metafield => metafield.field === 'trustvox_id')
-                  productId = meta.value || productId
+                  const meta = product.hidden_metafields.find(metafield => metafield.field === 'trustvox_id')
+                  if (meta && meta.value) {
+                    productId = meta.value
+                  }
                 }
 
                 trustVoxItens.push({
-                  'name': product.name,
-                  'id': productId,
-                  'url': product.permalink || `${store.homepage}/${product.slug}`,
-                  'price': product.price,
-                  'photos_urls': image,
-                  'tags': [productId],
-                  'extra': {
-                    'sku': product.sku
+                  name: product.name,
+                  id: productId,
+                  url: product.permalink || `https://${store.domain}/${product.slug}`,
+                  price: product.price,
+                  photos_urls: photosUrls,
+                  tags: [productId],
+                  extra: {
+                    sku: product.sku
                   }
                 })
               })
