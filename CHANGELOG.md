@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.13](https://github.com/ecomplus/app-trustvox/compare/v0.1.12...v0.1.13) (2021-09-09)
+
+
+### Bug Fixes
+
+* **new-trustvox-orders:** send non-WebP pictures (zoom) only ([404a3c2](https://github.com/ecomplus/app-trustvox/commit/404a3c24cba892bf248c2ce01f117ce44d6503c8))
+
 ### [0.1.12](https://github.com/ecomclub/app-trustvox/compare/v0.1.11...v0.1.12) (2020-08-17)
 
 ### [0.1.11](https://github.com/ecomclub/app-trustvox/compare/v0.1.10...v0.1.11) (2020-08-12)
